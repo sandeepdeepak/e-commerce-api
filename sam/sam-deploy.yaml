@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for E-commerce Rest API
+Parameters:
+  AppName:
+    Type: String
+    Description: Application Name. Used for naming resources
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 1024
+    Layers:
+    - Ref: LambdaLayer
+    Environment:
+      Variables:
+        TERRAFORM_ITEMS_TABLE:
+          Ref: TerraformItemsTable
+        TERRAFORM_ORDERS_TABLE:
+          Ref: TerraformOrdersTable
+Resources:
+  TerraformItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Fn::Sub: ${AppName}-item-table
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: ItemId
+        AttributeType: S
+      - AttributeName: UserId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: ItemId
+        KeyType: HASH
+      - AttributeName: UserId
+        KeyType: RANGE
+  TerraformOrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Fn::Sub: ${AppName}-order-table
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: OrderId
+        AttributeType: S
+      - AttributeName: UserId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: OrderId
+        KeyType: HASH
+      - AttributeName: UserId
+        KeyType: RANGE
+  LambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName:
+        Fn::Sub: ${AppName}-lambda-layer
+      Description:
+        Fn::Sub: ${AppName} Lambda Layer
+      ContentUri: s3://us-east-1-e-commerce-api-s3/cf34fbf8433739a316c1b71985f06d73
+      CompatibleRuntimes:
+      - nodejs12.x
+      RetentionPolicy: Retain
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: ${AppName}-lambda-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: cloudwatch
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:DescribeLogGroups
+            - logs:DescribeLogStreams
+            - logs:PutLogEvents
+            Resource:
+            - '*'
+      - PolicyName: ddbaccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:*
+            Resource:
+            - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TerraformItemsTable}/*
+            - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TerraformItemsTable}
+            - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TerraformOrdersTable}/*
+            - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TerraformOrdersTable}
+  GetData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AppName}-get-data
+      Handler: index.lambdaHandler
+      Runtime: nodejs12.x
+      Description: Get employee data from Dynamo DB
+      CodeUri: s3://us-east-1-e-commerce-api-s3/c4e9e0f49580ee485280e45dbd7eb43e
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+  PutData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AppName}-put-data
+      Handler: index.lambdaHandler
+      Runtime: nodejs12.x
+      Description: Add employee data to Dynamo DB
+      CodeUri: s3://us-east-1-e-commerce-api-s3/f2b6a3af8b73092da2181b6c295b00fa
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+  GetOrderData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AppName}-get-order-data
+      Handler: index.lambdaHandler
+      Runtime: nodejs12.x
+      Description: Get order data from Dynamo DB
+      CodeUri: s3://us-east-1-e-commerce-api-s3/c1cd7882e370c4446200aa3dc637f939
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+  PutOrderData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AppName}-put-order-data
+      Handler: index.lambdaHandler
+      Runtime: nodejs12.x
+      Description: Add Order data to Dynamo DB
+      CodeUri: s3://us-east-1-e-commerce-api-s3/3e375dc09a35c85a12f975cbf76bee44
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+Outputs:
+  GetDataArn:
+    Description: ARN of Get Data Lambda Function
+    Value:
+      Fn::GetAtt:
+      - GetData
+      - Arn
+    Export:
+      Name:
+        Fn::Sub: ${AppName}-get-data-arn
+  PutDataArn:
+    Description: ARN of Put Data Lambda Function
+    Value:
+      Fn::GetAtt:
+      - PutData
+      - Arn
+    Export:
+      Name:
+        Fn::Sub: ${AppName}-put-data-arn
+  GetOrderDataArn:
+    Description: ARN of Get Order Data Lambda Function
+    Value:
+      Fn::GetAtt:
+      - GetOrderData
+      - Arn
+    Export:
+      Name:
+        Fn::Sub: ${AppName}-get-order-data-arn
+  PutOrderDataArn:
+    Description: ARN of Put Order Data Lambda Function
+    Value:
+      Fn::GetAtt:
+      - PutOrderData
+      - Arn
+    Export:
+      Name:
+        Fn::Sub: ${AppName}-put-order-data-arn
