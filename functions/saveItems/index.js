@@ -7,9 +7,13 @@ let dynamodb = new AWS.DynamoDB.DocumentClient();
 let date = new Date();
 // Store date and time in human-readable format in a variable
 let now = date.toISOString();
+
+const jwt_decode = require('jwt-decode');
 // Define handler function, the entry point to our code for the Lambda service
 // We receive the object that triggers the function as a parameter
 exports.handler = async (event) => {
+
+    var user = event.requestContext.authorizer.claims['cognito:username'];
 
     event = JSON.parse(event.body)
     // if(event.Group !== 'admin-group'){
@@ -21,7 +25,7 @@ exports.handler = async (event) => {
         TableName: 'ItemsTableTerraform',
         Item: {
             'ItemId': uuidv4(),
-            'UserId': event.UserId,
+            'UserId': user,
             'ItemName': event.ItemName,
             'StockQuantity': event.StockQuantity,
             'SoldQuantity': event.SoldQuantity,
