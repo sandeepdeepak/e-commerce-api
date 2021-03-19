@@ -10,15 +10,14 @@ let now = date.toISOString();
 // Define handler function, the entry point to our code for the Lambda service
 // We receive the object that triggers the function as a parameter
 exports.handler = async (event) => {
-
     var user = event.requestContext.authorizer.claims['cognito:username'];
     var group = event.requestContext.authorizer.claims['cognito:groups'];
-    if (group !== 'admin-group') {
+    if (group !== 'customer-group') {
         return {
             statusCode: 401,
             body: JSON.stringify(
                 {
-                    message: 'Admin can only add items!'
+                    message: "Sorry! Customers only can place orders!"
                 }
             )
         };
@@ -28,16 +27,12 @@ exports.handler = async (event) => {
 
     // Create JSON object with parameters for DynamoDB and store in a variable
     let params = {
-        TableName: 'ItemsTableTerraform',
+        TableName: 'OrderTableTerraform',
         Item: {
-            'ItemId': uuidv4(),
+            'OrderId': uuidv4(),
             'UserId': user,
-            'ItemName': event.ItemName,
-            'StockQuantity': event.StockQuantity,
-            'SoldQuantity': event.SoldQuantity,
-            'UnitPrice': event.UnitPrice,
-            'IsPublished': event.IsPublished
-
+            'Items': event.Items,
+            'Status': 'Order Placed'
         }
     };
 
@@ -48,8 +43,8 @@ exports.handler = async (event) => {
         statusCode: 200,
         body: JSON.stringify(
             {
-                status: 'success',
-                message: 'Item added successfully'
+                status: 'Success',
+                message: "Order updated successfully"
             }
         )
     };
