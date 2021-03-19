@@ -4,6 +4,9 @@ resource "aws_cognito_user_pool" "pool" {
     minimum_length    = 6
     require_uppercase = false
   }
+  lambda_config {
+    pre_sign_up = aws_lambda_function.presignup.arn
+  }
 }
 
 resource "aws_cognito_user_pool_client" "client" {

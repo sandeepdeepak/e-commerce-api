@@ -38,6 +38,32 @@ EOF
 
 }
 
+resource "aws_iam_role_policy_attachment" "post_signup_policy" {
+  role       = aws_iam_role.post_signup_lambda_exec.name
+  policy_arn = aws_iam_policy.post_signup_cognito_access.arn
+}
+
+# access cognito.
+resource "aws_iam_policy" "post_signup_cognito_access" {
+  name        = "post_signup_cognito_access"
+  path        = "/"
+  description = "IAM policy for accessing cognito"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "cognito-idp:*",
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
 resource "aws_lambda_permission" "post_signup_apigw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
