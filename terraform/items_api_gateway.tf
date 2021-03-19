@@ -62,8 +62,3 @@ resource "aws_api_gateway_authorizer" "api_gateway_authorizer" {
   provider_arns   = ["${aws_cognito_user_pool.pool.arn}"]
 }
 
-output "base_url" {
-  value = aws_api_gateway_deployment.deploy.invoke_url
-}
-
-

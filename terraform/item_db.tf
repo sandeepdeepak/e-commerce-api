@@ -18,15 +18,15 @@ resource "aws_dynamodb_table" "basic-dynamodb-table" {
 
 }
 
-resource "aws_dynamodb_table" "user-dynamodb-table" {
-  name           = "UserTableTerraform"
+resource "aws_dynamodb_table" "order-dynamodb-table" {
+  name           = "OrderTableTerraform"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "UserId"
+  hash_key       = "OrderId"
 
   attribute {
-    name = "UserId"
+    name = "OrderId"
     type = "S"
   }
 
