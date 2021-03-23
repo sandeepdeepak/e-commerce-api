@@ -17,8 +17,8 @@ exports.handler = async (event) => {
     event = JSON.parse(event.body)
 
     const POOL_DATA = {
-        UserPoolId: event.UserPoolId,
-        ClientId: event.ClientId
+        UserPoolId: process.env.userPoolId,
+        ClientId: process.env.appClientId
     };
     const userPool = new CognitoUserPool(POOL_DATA);
 
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     async function saveUserGroup() {
         var params = {
             GroupName: group, /* required */
-            UserPoolId: event.UserPoolId, /* required */
+            UserPoolId: process.env.userPoolId, /* required */
             Username: username /* required */
         };
         var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();

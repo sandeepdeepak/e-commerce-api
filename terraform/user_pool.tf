@@ -15,6 +15,3 @@ resource "aws_cognito_user_pool_client" "client" {
   explicit_auth_flows = ["ADMIN_NO_SRP_AUTH"]
 }
 
-locals {
-  pool_id = aws_cognito_user_pool.pool.id
-}

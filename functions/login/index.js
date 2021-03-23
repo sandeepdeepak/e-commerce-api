@@ -19,8 +19,8 @@ exports.handler = async (event) => {
     event = JSON.parse(event.body)
 
     const POOL_DATA = {
-        UserPoolId: event.UserPoolId,
-        ClientId: event.ClientId
+        UserPoolId: process.env.userPoolId,
+        ClientId: process.env.appClientId
     };
     const userPool = new CognitoUserPool(POOL_DATA);
 
