@@ -12,6 +12,13 @@ resource "aws_lambda_function" "signup" {
   handler = "index.handler"
   runtime = "nodejs10.x"
 
+  environment {
+    variables = {
+      userPoolId    = aws_cognito_user_pool.pool.id
+      app_client_id = aws_cognito_user_pool_client.client.id
+    }
+  }
+
   role = aws_iam_role.post_signup_lambda_exec.arn
 }
 

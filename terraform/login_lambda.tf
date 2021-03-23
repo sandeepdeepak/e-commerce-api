@@ -13,6 +13,13 @@ resource "aws_lambda_function" "login" {
   runtime = "nodejs10.x"
   timeout = 20
 
+  environment {
+    variables = {
+      userPoolId    = aws_cognito_user_pool.pool.id
+      app_client_id = aws_cognito_user_pool_client.client.id
+    }
+  }
+
   role = aws_iam_role.post_login_lambda_exec.arn
 }
 
