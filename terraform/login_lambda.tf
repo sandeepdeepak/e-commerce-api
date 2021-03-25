@@ -15,8 +15,8 @@ resource "aws_lambda_function" "login" {
 
   environment {
     variables = {
-      userPoolId    = aws_cognito_user_pool.pool.id
-      app_client_id = aws_cognito_user_pool_client.client.id
+      userPoolId  = aws_cognito_user_pool.pool.id
+      appClientId = aws_cognito_user_pool_client.client.id
     }
   }
 
