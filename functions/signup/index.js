@@ -40,7 +40,7 @@ exports.handler = async (event) => {
             cognitoidentityserviceprovider.adminAddUserToGroup(params, function (err, data) {
                 if (err) reject(err); // an error occurred
                 else resolve({
-                    statusCode: 200,
+                    statusCode: 201,
                     body: JSON.stringify(
                         {
                             status: 'Success',
