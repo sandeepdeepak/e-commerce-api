@@ -4,10 +4,12 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
+    archive = {
+      source = "hashicorp/archive"
+    }
   }
 }
 
 provider "aws" {
   region = "us-east-1"
 }
-

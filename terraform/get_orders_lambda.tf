@@ -1,10 +1,22 @@
 
+data "archive_file" "lambda_zip_getOrders" {
+  type        = "zip"
+  output_path = "/tmp/lambda_zip_getOrders.zip"
+  source {
+    content  = file("functions/getOrders/index.js")
+    filename = "index.js"
+  }
+}
+
 resource "aws_lambda_function" "getOrders" {
   function_name = "GetOrdersTerraform"
 
-  # The bucket name as created earlier with "aws s3api create-bucket"
-  s3_bucket = "terraform-serverless-example17121996"
-  s3_key    = "v1.0.0/getOrders.zip"
+  filename         = data.archive_file.lambda_zip_getOrders.output_path
+  source_code_hash = data.archive_file.lambda_zip_getOrders.output_base64sha256
+
+  # # The bucket name as created earlier with "aws s3api create-bucket"
+  # s3_bucket = "terraform-serverless-example17121996"
+  # s3_key    = "v1.0.0/getOrders.zip"
 
   # "main" is the filename within the zip file (main.js) and "handler"
   # is the name of the property under which the handler function was
